@@ -16,7 +16,7 @@ today = datetime.datetime.now()
 lastMonth = today + datetime.timedelta(-32)
 
 
-startDate = twoWeeksAgo.strftime("%Y-%m-%d")
+startDate = lastMonth.strftime("%Y-%m-%d")
 endDate = today.strftime("%Y-%m-%d")
 
 startTime = "00:00"
