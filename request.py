@@ -4,10 +4,7 @@ import requests
 import json
 import datetime
 import json
-
-
-
-apiKey = "a475a0804c3c4f09B08ac7a339ba5383"
+import credentials
 
 
 today = datetime.datetime.now()
@@ -23,7 +20,7 @@ startTime = "00:00"
 endTime = "24:00"
 interval = "60"
 
-r = requests.get('https://api.axper.com/api/TrafficReport/GetTrafficData', params = {'Apikey':f'{apiKey}','DateFrom':f'{startDate}','DateTo':f'{endDate}','HourMinuteFrom':f'{startTime}','HourMinuteTo':f'{endTime}', 'IntervalInMinutes':f'{interval}'})
+r = requests.get('https://api.axper.com/api/TrafficReport/GetTrafficData', params = {'Apikey':f'{credentials.apiKey}','DateFrom':f'{startDate}','DateTo':f'{endDate}','HourMinuteFrom':f'{startTime}','HourMinuteTo':f'{endTime}', 'IntervalInMinutes':f'{interval}'})
 # start changing the string into an array for writing
 lines = r.text.split("\n")
 lines.pop(0)
@@ -84,5 +81,5 @@ for row in innerArray:
 
 for payload in finalArray:
 
-   r = requests.post('https://gvsu.libinsight.com/add.php', params = {'wid':'27','type':'5','token':'6e4058071fb07daafd779096c5ce7f02','data':'json'}, data=payload)
+   r = requests.post('https://gvsu.libinsight.com/add.php', params = {'wid':'27','type':'5','token':f'{credentials.token}','data':'json'}, data=payload)
   
