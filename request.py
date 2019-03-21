@@ -3,10 +3,9 @@
 import requests
 import json
 import datetime
-import json
 import credentials
 
-
+#start generating date data for current reporting period ( previous 7 days)
 today = datetime.datetime.now()
 
 #This is run every monday and gets the data for the last week
@@ -16,6 +15,7 @@ lastWeek = today + datetime.timedelta(-7)
 startDate = lastWeek.strftime("%Y-%m-%d")
 endDate = today.strftime("%Y-%m-%d")
 
+#get all data for all times, 60-minute increments
 startTime = "00:00"
 endTime = "23:00"
 interval = "60"
@@ -26,6 +26,7 @@ r = requests.get('https://api.axper.com/api/TrafficReport/GetTrafficData', param
 #print(r.url)
 
 lines = r.text.split("\n")
+# get ris of the first line, which is field identifiers
 lines.pop(0)
 
 finalArray = []
@@ -38,9 +39,11 @@ for row in lines:
     data = {}
     #remove carriage returns
     row = row.replace("\r","")
+    #split the csv row into individual elements for processing
     row = row.split(",")
     if row[0] != '':
         row.pop(0)
+        #replacename with the numberic code for that location in libinsight
         if row[0] == "Mary Idema Pew Library":
             
             data["gate_id"] = "10" 
@@ -52,10 +55,11 @@ for row in lines:
             data["gate_id"] = "12"
         elif row[0] == "Seidman House Library":
             data["gate_id"] = "11"
+            #skip any data with a name we don't recognize
         else:
             continue
 
-    
+        #format the rest of the data
         data["date"] = row[1]
         data["gate_start"] = row[2]
         data["gate_end"] = row[3]
@@ -67,7 +71,9 @@ totalCount = 0
 tempArray = []
 length = len(innerArray)
 
-
+#libinsight will only upload data in batches of 500 records.  So I need a json array in blocks of 500 or less.
+#roll through the formated data, breaking it into separate arrays of 500 records (or less if there's less than 500 remaining), 
+# and transforming it to json
 for row in innerArray:
     tempArray.append(row)
     count += 1
@@ -80,6 +86,9 @@ for row in innerArray:
 
 print(str(totalCount) + " records processed.")
 
+#now iterate through the final array of records, uploading each batch of 500
+#check the http status code and the response from the libinsight API to make sure 
+#the ingest was successful.  If it wasn't, shut down.
 for payload in finalArray:
 
     r = requests.post('https://gvsu.libinsight.com/add.php', params = {'wid':'27','type':'5','token':f'{credentials.token}','data':'json'}, data=payload)
