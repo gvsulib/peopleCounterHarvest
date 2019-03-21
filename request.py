@@ -10,18 +10,21 @@ import credentials
 today = datetime.datetime.now()
 
 #This is run every monday and gets the data for the last week
-lastMonth = today + datetime.timedelta(-32)
+lastWeek = today + datetime.timedelta(-7)
 
 
-startDate = lastMonth.strftime("%Y-%m-%d")
+startDate = lastWeek.strftime("%Y-%m-%d")
 endDate = today.strftime("%Y-%m-%d")
 
 startTime = "00:00"
-endTime = "24:00"
+endTime = "23:00"
 interval = "60"
 
 r = requests.get('https://api.axper.com/api/TrafficReport/GetTrafficData', params = {'Apikey':f'{credentials.apiKey}','DateFrom':f'{startDate}','DateTo':f'{endDate}','HourMinuteFrom':f'{startTime}','HourMinuteTo':f'{endTime}', 'IntervalInMinutes':f'{interval}'})
 # start changing the string into an array for writing
+
+#print(r.url)
+
 lines = r.text.split("\n")
 lines.pop(0)
 
@@ -40,23 +43,24 @@ for row in lines:
         row.pop(0)
         if row[0] == "Mary Idema Pew Library":
             
-            data["gate_id"] = "10"
-            data["date"] = row[1]
-            data["gate_start"] = row[2]
-            data["gate_end"] = row[3]
-            innerArray.append(data)
-            
+            data["gate_id"] = "10" 
             totalCount += 1
         elif row[0] == "Steelcase Library":
             data["gate_id"] = "9"
-            data["date"] = row[1]
-            data["gate_start"] = row[2]
-            data["gate_end"] = row[3]
-            innerArray.append(data)
-            
             totalCount += 1
+        elif row[0] == "Exhibition Room":
+            data["gate_id"] = "12"
+        elif row[0] == "Seidman House Library":
+            data["gate_id"] = "11"
         else:
             continue
+
+    
+        data["date"] = row[1]
+        data["gate_start"] = row[2]
+        data["gate_end"] = row[3]
+        innerArray.append(data)
+            
 
 count = 0
 totalCount = 0
@@ -74,12 +78,19 @@ for row in innerArray:
         tempArray=[]
         
 
-
-
-
-#print(str(finalArray))
+print(str(totalCount) + " records processed.")
 
 for payload in finalArray:
 
-   r = requests.post('https://gvsu.libinsight.com/add.php', params = {'wid':'27','type':'5','token':f'{credentials.token}','data':'json'}, data=payload)
-  
+    r = requests.post('https://gvsu.libinsight.com/add.php', params = {'wid':'27','type':'5','token':f'{credentials.token}','data':'json'}, data=payload)
+    if r.status_code != 200:
+        print(f"problem contacting libinsight server, terminating. Status Code {r.status_code} \n")
+        exit
+
+    json_data = json.loads(r.text)
+
+    if json_data["response"] != 1:
+        print("Libinsight reports error ingesting data, terminating.")
+        exit
+
+print("Data migration complete!")
