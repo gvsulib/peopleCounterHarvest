@@ -4,6 +4,7 @@ import requests
 import json
 import datetime
 import credentials
+import sys
 
 #start generating date data for current reporting period ( previous 7 days)
 today = datetime.datetime.now()
@@ -20,13 +21,23 @@ startTime = "00:00"
 endTime = "23:00"
 interval = "60"
 
-r = requests.get('https://api.axper.com/api/TrafficReport/GetTrafficData', params = {'Apikey':f'{credentials.apiKey}','DateFrom':f'{startDate}','DateTo':f'{endDate}','HourMinuteFrom':f'{startTime}','HourMinuteTo':f'{endTime}', 'IntervalInMinutes':f'{interval}'})
+data = {'Apikey':credentials.apiKey,'DateFrom':startDate,'DateTo':endDate,'HourMinuteFrom':startTime,'HourMinuteTo':endTime, 'IntervalInMinutes':interval}
+
+r = requests.get('https://api.axper.com/api/TrafficReport/GetTrafficData', params = data)
+
+print(r.url)
+if r.status_code != 200:
+	print('Cannot contact peoplecounter API, error code {}'.format(r.status_code))
+	quit()
+
+
+
 # start changing the string into an array for writing
 
 #print(r.url)
 
 lines = r.text.split("\n")
-# get ris of the first line, which is field identifiers
+# get rid of the first line, which is field identifiers
 lines.pop(0)
 
 finalArray = []
@@ -36,34 +47,32 @@ totalCount = 0
 
 #first extract and format all usable data
 for row in lines:
-    data = {}
-    #remove carriage returns
-    row = row.replace("\r","")
-    #split the csv row into individual elements for processing
-    row = row.split(",")
-    if row[0] != '':
-        row.pop(0)
-        #replacename with the numberic code for that location in libinsight
-        if row[0] == "Mary Idema Pew Library":
-            
-            data["gate_id"] = "10" 
-            totalCount += 1
-        elif row[0] == "Steelcase Library":
-            data["gate_id"] = "9"
-            totalCount += 1
-        elif row[0] == "Exhibition Room":
-            data["gate_id"] = "12"
-        elif row[0] == "Seidman House Library":
-            data["gate_id"] = "11"
-            #skip any data with a name we don't recognize
-        else:
-            continue
-
-        #format the rest of the data
-        data["date"] = row[1]
-        data["gate_start"] = row[2]
-        data["gate_end"] = row[3]
-        innerArray.append(data)
+	data = {}
+    	#remove carriage returns
+	row = row.replace("\r","")
+    	#split the csv row into individual elements for processing
+	row = row.split(",")
+	if row[0] != '':
+		row.pop(0)
+        	#replacename with the numberic code for that location in libinsight
+	if row[0] == "Mary Idema Pew Library":
+		data["gate_id"] = "10"
+		totalCount += 1
+	elif row[0] == "Steelcase Library":
+		data["gate_id"] = "9"
+		totalCount += 1
+	elif row[0] == "Exhibition Room":
+		data["gate_id"] = "12"
+	elif row[0] == "Seidman House Library":
+		data["gate_id"] = "11"
+            	#skip any data with a name we don't recognize
+	else:
+		continue
+	#format the rest of the data
+	data["date"] = row[1]
+	data["gate_start"] = row[2]
+	data["gate_end"] = row[3]
+	innerArray.append(data)
             
 
 count = 0
@@ -71,17 +80,20 @@ totalCount = 0
 tempArray = []
 length = len(innerArray)
 
+
+
+
 #libinsight will only upload data in batches of 500 records.  So I need a json array in blocks of 500 or less.
 #roll through the formated data, breaking it into separate arrays of 500 records (or less if there's less than 500 remaining), 
 # and transforming it to json
 for row in innerArray:
-    tempArray.append(row)
-    count += 1
-    totalCount +=1
-    if len(tempArray) == 500 or totalCount == length:
-        count = 0
-        finalArray.append(json.dumps(tempArray))
-        tempArray=[]
+	tempArray.append(row)
+	count += 1
+	totalCount +=1
+	if len(tempArray) == 500 or totalCount == length:
+		count = 0
+		finalArray.append(json.dumps(tempArray))
+		tempArray=[]
         
 
 print(str(totalCount) + " records processed.")
@@ -90,16 +102,16 @@ print(str(totalCount) + " records processed.")
 #check the http status code and the response from the libinsight API to make sure 
 #the ingest was successful.  If it wasn't, shut down.
 for payload in finalArray:
+	stuff = {'wid':'27','type':'5','token':credentials.token,'data':'json'}
+	r = requests.post('https://gvsu.libinsight.com/add.php', params = stuff, data=payload)
+	if r.status_code != 200:
+        	print('problem contacting libinsight server, terminating. Status Code {} \n'.format(r.status_code))
+        	quit()
+	json_data = json.loads(r.text)
 
-    r = requests.post('https://gvsu.libinsight.com/add.php', params = {'wid':'27','type':'5','token':f'{credentials.token}','data':'json'}, data=payload)
-    if r.status_code != 200:
-        print(f"problem contacting libinsight server, terminating. Status Code {r.status_code} \n")
-        exit
-
-    json_data = json.loads(r.text)
-
-    if json_data["response"] != 1:
-        print("Libinsight reports error ingesting data, terminating.")
-        exit
+	if json_data["response"] != 1:
+		print("Libinsight reports error ingesting data, terminating.")
+		print(json_data["message"])
+		quit()
 
 print("Data migration complete!")
