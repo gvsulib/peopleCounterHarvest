@@ -78,7 +78,6 @@ lines.pop(0)
 finalArray = []
 innerArray = []
 
-totalCount = 0
 
 #first extract and format all usable data
 for row in lines:
@@ -92,12 +91,8 @@ for row in lines:
         	#replacename with the numberic code for that location in libinsight
 	if row[0] == "Mary Idema Pew Library":
 		data["gate_id"] = "5"
-		totalCount += 1
 	elif row[0] == "Steelcase Library":
 		data["gate_id"] = "6"
-		totalCount += 1
-	elif row[0] == "Exhibition Room":
-		data["gate_id"] = "13"
 	elif row[0] == "Seidman House Library":
 		data["gate_id"] = "14"
             	#skip any data with a name we don't recognize
