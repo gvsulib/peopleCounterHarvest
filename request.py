@@ -5,16 +5,47 @@ import json
 import datetime
 import credentials
 import sys
+import os
+import time
+if len(sys.argv) > 1:
+	if len(sys.argv) < 3:
+		print("You must enter a valid start date and end date.")
+		quit(1)
 
-#start generating date data for current reporting period ( previous 7 days)
-today = datetime.datetime.now()
+	#verify that the two dates provided are in the correct format
+	try:
+        	
+		datetime.datetime.strptime(sys.argv[1], '%Y-%m-%d')
+	except ValueError:
+		print("First date is invalid, should be YYYY-MM-DD, try again.")
+		quit(1)
+	try:
+                
+                datetime.datetime.strptime(sys.argv[2], '%Y-%m-%d')
+	except ValueError:
+		print("Second date is invalid, should be YYYY-MM-DD, try again.")
+		quit(1)
 
-#This is run every monday and gets the data for the last week
-lastWeek = today + datetime.timedelta(-7)
+	startTime = time.mktime(datetime.datetime.strptime(sys.argv[1], "%Y-%m-%d").timetuple())
+	endTime = time.mktime(datetime.datetime.strptime(sys.argv[2], "%Y-%m-%d").timetuple())
+
+	if startTime > endTime:
+		print("Start date must be before end date.")
+		quit(1)	
+	#if we make it here, set start and end dates
+	startDate = sys.argv[1]
+	endDate = sys.argv[2]
+else: 
+	#if no arguments are supplied, get data for the last week
+	#start generating date data for current reporting period ( previous 7 days)
+	today = datetime.datetime.now()
+
+	#This is run every monday and gets the data for the last week
+	lastWeek = today + datetime.timedelta(-7)
 
 
-startDate = lastWeek.strftime("%Y-%m-%d")
-endDate = today.strftime("%Y-%m-%d")
+	startDate = lastWeek.strftime("%Y-%m-%d")
+	endDate = today.strftime("%Y-%m-%d")
 
 #get all data for all times, 60-minute increments
 startTime = "00:00"
@@ -23,9 +54,11 @@ interval = "60"
 
 data = {'Apikey':credentials.apiKey,'DateFrom':startDate,'DateTo':endDate,'HourMinuteFrom':startTime,'HourMinuteTo':endTime, 'IntervalInMinutes':interval}
 
+print('Attempting to get data from {startDate} to {endDate}'.format(startDate=startDate, endDate=endDate))
+
 r = requests.get('https://api.axper.com/api/TrafficReport/GetTrafficData', params = data)
 
-print(r.url)
+
 if r.status_code != 200:
 	print('Cannot contact peoplecounter API, error code {}'.format(r.status_code))
 	quit()
