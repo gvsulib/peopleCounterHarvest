@@ -54,20 +54,22 @@ interval = "60"
 
 data = {'Apikey':credentials.apiKey,'DateFrom':startDate,'DateTo':endDate,'HourMinuteFrom':startTime,'HourMinuteTo':endTime, 'IntervalInMinutes':interval}
 
+
 print('Attempting to get data from {startDate} to {endDate}'.format(startDate=startDate, endDate=endDate))
 
 r = requests.get('https://api.axper.com/api/TrafficReport/GetTrafficData', params = data)
 
 
+
 if r.status_code != 200:
 	print('Cannot contact peoplecounter API, error code {}'.format(r.status_code))
-	quit()
+	quit(1)
 
 
 
 # start changing the string into an array for writing
 
-#print(r.url)
+print(r.url)
 
 lines = r.text.split("\n")
 # get rid of the first line, which is field identifiers
@@ -89,16 +91,18 @@ for row in lines:
 		row.pop(0)
         	#replacename with the numberic code for that location in libinsight
 	if row[0] == "Mary Idema Pew Library":
-		data["gate_id"] = "10"
+		data["gate_id"] = "5"
 		totalCount += 1
 	elif row[0] == "Steelcase Library":
-		data["gate_id"] = "9"
+		data["gate_id"] = "6"
 		totalCount += 1
 	elif row[0] == "Exhibition Room":
-		data["gate_id"] = "12"
+		data["gate_id"] = "13"
 	elif row[0] == "Seidman House Library":
-		data["gate_id"] = "11"
+		data["gate_id"] = "14"
             	#skip any data with a name we don't recognize
+	elif row[0] == "Frey Learning Center":
+		data["gate_id"] = "7"
 	else:
 		continue
 	#format the rest of the data
@@ -135,7 +139,7 @@ print(str(totalCount) + " records processed.")
 #check the http status code and the response from the libinsight API to make sure 
 #the ingest was successful.  If it wasn't, shut down.
 for payload in finalArray:
-	stuff = {'wid':'27','type':'5','token':credentials.token,'data':'json'}
+	stuff = {'wid':'29','type':'5','token':credentials.token,'data':'json'}
 	r = requests.post('https://gvsu.libinsight.com/add.php', params = stuff, data=payload)
 	if r.status_code != 200:
         	print('problem contacting libinsight server, terminating. Status Code {} \n'.format(r.status_code))
