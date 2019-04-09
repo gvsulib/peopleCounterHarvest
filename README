@@ -1,1 +1,13 @@
- very simple script to harvest data from our peoplecounter gate counters and put it into our libinsight account
+PeopleCounterScript
+===================
+
+
+Very simple script to harvest data from our peoplecounter gate counters and put it into our libinsight account
+
+Requires a separate authentication file with credentials for the respective APIs.
+
+Can be invoked form the command line:
+
+./request.py YYYY-MM-DD YYYY-MM-DD
+
+It will pull all data from the peoplecounters from the first specified date to the second.  If no date arguments are specified, it will pull data from the last seven days.`
