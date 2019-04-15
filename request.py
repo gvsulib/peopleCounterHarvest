@@ -161,7 +161,7 @@ for row in innerArray:
         
 
 print(str(totalCount) + " records processed.")
-'''
+
 #now iterate through the final array of records, uploading each batch of 500
 #check the http status code and the response from the libinsight API to make sure 
 #the ingest was successful.  If it wasn't, shut down.
@@ -177,5 +177,5 @@ for payload in finalArray:
 		print("Libinsight reports error ingesting data, terminating.")
 		print(json_data["message"])
 		quit()
-'''
+
 print("Data migration complete!")
