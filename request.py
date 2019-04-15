@@ -31,7 +31,33 @@ if len(sys.argv) > 1:
 
 	if startTime > endTime:
 		print("Start date must be before end date.")
-		quit(1)	
+		quit(1)
+
+	if len(sys.argv) == 4:
+
+		acceptableValues = [5,6,7,14]
+		if int(sys.argv[3]) in acceptableValues:
+			
+			locIDNum = sys.argv[3]
+			if locIDNum  == "5":
+				location  = "Mary Idema Pew Library"
+			elif locIDNum  == "6":
+				location == "Steelcase Library"
+			elif locIDNum  == "14":
+               			location == "Seidman House Library"
+			elif locIDNum == "7":
+				location = "Frey Learning Center"
+			else:
+				print("Third argument must be an 5,6,7, or 14")
+				quit(1)
+		else:
+			print("Third argument must be an 5,6,7, or 14")
+			quit(1)
+	
+
+	else :
+
+		location = False
 	#if we make it here, set start and end dates
 	startDate = sys.argv[1]
 	endDate = sys.argv[2]
@@ -89,17 +115,24 @@ for row in lines:
 	if row[0] != '':
 		row.pop(0)
         	#replacename with the numberic code for that location in libinsight
-	if row[0] == "Mary Idema Pew Library":
-		data["gate_id"] = "5"
-	elif row[0] == "Steelcase Library":
-		data["gate_id"] = "6"
-	elif row[0] == "Seidman House Library":
-		data["gate_id"] = "14"
-            	#skip any data with a name we don't recognize
-	elif row[0] == "Frey Learning Center":
-		data["gate_id"] = "7"
+
+	if location == False:
+		if row[0] == "Mary Idema Pew Library":
+			data["gate_id"] = "5"
+		elif row[0] == "Steelcase Library":
+			data["gate_id"] = "6"
+		elif row[0] == "Seidman House Library":
+			data["gate_id"] = "14"
+            		#skip any data with a name we don't recognize
+		elif row[0] == "Frey Learning Center":
+			data["gate_id"] = "7"
+		else:
+			continue
 	else:
-		continue
+		if row[0] == location:
+			data["gate_id"] = locIDNum
+		else:
+			continue
 	#format the rest of the data
 	data["date"] = row[1]
 	data["gate_start"] = row[2]
@@ -112,8 +145,7 @@ totalCount = 0
 tempArray = []
 length = len(innerArray)
 
-
-
+print(*innerArray, sep = ", ")  
 
 #libinsight will only upload data in batches of 500 records.  So I need a json array in blocks of 500 or less.
 #roll through the formated data, breaking it into separate arrays of 500 records (or less if there's less than 500 remaining), 
@@ -129,7 +161,7 @@ for row in innerArray:
         
 
 print(str(totalCount) + " records processed.")
-
+'''
 #now iterate through the final array of records, uploading each batch of 500
 #check the http status code and the response from the libinsight API to make sure 
 #the ingest was successful.  If it wasn't, shut down.
@@ -145,5 +177,5 @@ for payload in finalArray:
 		print("Libinsight reports error ingesting data, terminating.")
 		print(json_data["message"])
 		quit()
-
+'''
 print("Data migration complete!")

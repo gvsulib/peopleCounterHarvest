@@ -8,6 +8,14 @@ Requires a separate authentication file with credentials for the respective APIs
 
 Can be invoked form the command line:
 
-./request.py YYYY-MM-DD YYYY-MM-DD
+./request.py YYYY-MM-DD YYYY-MM-DD locationID(optional)
+
+The third option is the location ID of a specific location-this will limit retrieval to data matching the specified dates from that specific location.  Locations and their codes are:
+
+5 = "Mary Idema Pew Library"
+6 = Steelcase
+7 = Frey Learning Center
+14 = Siedman
+
 
 It will pull all data from the peoplecounters from the first specified date to the second.  If no date arguments are specified, it will pull data from the last seven days.`
