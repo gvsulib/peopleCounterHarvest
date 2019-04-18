@@ -7,7 +7,13 @@ import credentials
 import sys
 import os
 import time
+
+
+#set a filename for local data
+#file = open("last_upload.csv", "w")
+
 if len(sys.argv) > 1:
+
 	if len(sys.argv) < 3:
 		print("You must enter a valid start date and end date.")
 		quit(1)
@@ -35,23 +41,26 @@ if len(sys.argv) > 1:
 
 	if len(sys.argv) == 4:
 
-		acceptableValues = [5,6,7,14]
+		acceptableValues = [5,6,7,14,15]
 		if int(sys.argv[3]) in acceptableValues:
 			
+			location = ""
 			locIDNum = sys.argv[3]
 			if locIDNum  == "5":
 				location  = "Mary Idema Pew Library"
 			elif locIDNum  == "6":
-				location == "Steelcase Library"
+				location = "Steelcase Library"
 			elif locIDNum  == "14":
-               			location == "Seidman House Library"
+               			location = "Seidman House Library"
 			elif locIDNum == "7":
 				location = "Frey Learning Center"
+			elif locIDNum == "15":
+				location = "Exhibition Space – Mary Idema Pew Library"
 			else:
-				print("Third argument must be an 5,6,7, or 14")
+				print("Third argument must be an 5,6,7,14, or 15")
 				quit(1)
 		else:
-			print("Third argument must be an 5,6,7, or 14")
+			print("Third argument must be an 5,6,7, 14 or 15")
 			quit(1)
 	
 
@@ -72,7 +81,7 @@ else:
 
 	startDate = lastWeek.strftime("%Y-%m-%d")
 	endDate = today.strftime("%Y-%m-%d")
-
+	location = False
 #get all data for all times, 60-minute increments
 startTime = "00:00"
 endTime = "23:00"
@@ -97,6 +106,8 @@ if r.status_code != 200:
 
 print(r.url)
 
+#file.write(r.text)
+
 lines = r.text.split("\n")
 # get rid of the first line, which is field identifiers
 lines.pop(0)
@@ -117,6 +128,7 @@ for row in lines:
         	#replacename with the numberic code for that location in libinsight
 
 	if location == False:
+		
 		if row[0] == "Mary Idema Pew Library":
 			data["gate_id"] = "5"
 		elif row[0] == "Steelcase Library":
@@ -126,10 +138,14 @@ for row in lines:
             		#skip any data with a name we don't recognize
 		elif row[0] == "Frey Learning Center":
 			data["gate_id"] = "7"
+		
+		elif row[0] == "Exhibition Space – Mary Idema Pew Library":
+			data["gate_id"] = "15"
 		else:
 			continue
 	else:
 		if row[0] == location:
+			
 			data["gate_id"] = locIDNum
 		else:
 			continue
@@ -137,16 +153,17 @@ for row in lines:
 	data["date"] = row[1]
 	data["gate_start"] = row[2]
 	data["gate_end"] = row[3]
+
+
+	
 	innerArray.append(data)
             
-
+#file.close()
 count = 0
 totalCount = 0
 tempArray = []
 length = len(innerArray)
-
-print(*innerArray, sep = ", ")  
-
+#print(*innerArray, sep = ", ")  
 #libinsight will only upload data in batches of 500 records.  So I need a json array in blocks of 500 or less.
 #roll through the formated data, breaking it into separate arrays of 500 records (or less if there's less than 500 remaining), 
 # and transforming it to json
@@ -175,7 +192,8 @@ for payload in finalArray:
 
 	if json_data["response"] != 1:
 		print("Libinsight reports error ingesting data, terminating.")
-		print(json_data["message"])
+		for i in json_data:
+    			print("{} {}".format(i, json_data[i]))
 		quit()
 
 print("Data migration complete!")
