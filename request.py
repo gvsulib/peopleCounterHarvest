@@ -55,7 +55,7 @@ if len(sys.argv) > 1:
 			elif locIDNum == "7":
 				location = "Frey Learning Center"
 			elif locIDNum == "15":
-				location = "Exhibition Space – Mary Idema Pew Library"
+				location = "Exhibition Room"
 			else:
 				print("Third argument must be an 5,6,7,14, or 15")
 				quit(1)
@@ -139,7 +139,7 @@ for row in lines:
 		elif row[0] == "Frey Learning Center":
 			data["gate_id"] = "7"
 		
-		elif row[0] == "Exhibition Space – Mary Idema Pew Library":
+		elif row[0] == "Exhibition Room":
 			data["gate_id"] = "15"
 		else:
 			continue
