@@ -53,7 +53,7 @@ if len(sys.argv) > 1:
 			elif locIDNum  == "14":
                			location = "Seidman House Library"
 			elif locIDNum == "7":
-				location = "Frey Learning Center"
+				location = "Frey"
 			elif locIDNum == "15":
 				location = "Exhibition Room"
 			else:
@@ -136,7 +136,7 @@ for row in lines:
 		elif row[0] == "Seidman House Library":
 			data["gate_id"] = "14"
             		#skip any data with a name we don't recognize
-		elif row[0] == "Frey Learning Center":
+		elif row[0] == "Frey":
 			data["gate_id"] = "7"
 		
 		elif row[0] == "Exhibition Room":
