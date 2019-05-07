@@ -53,7 +53,7 @@ if len(sys.argv) > 1:
 			elif locIDNum  == "14":
                			location = "Seidman House Library"
 			elif locIDNum == "7":
-				location = "Frey"
+				location = "Frey Library"
 			elif locIDNum == "15":
 				location = "Exhibition Room"
 			else:
@@ -106,8 +106,10 @@ if r.status_code != 200:
 
 print(r.url)
 
-#file.write(r.text)
 
+#file = open("raw_data.csv", "w+")
+#file.write(r.text)
+#file.close()
 lines = r.text.split("\n")
 # get rid of the first line, which is field identifiers
 lines.pop(0)
@@ -136,7 +138,7 @@ for row in lines:
 		elif row[0] == "Seidman House Library":
 			data["gate_id"] = "14"
             		#skip any data with a name we don't recognize
-		elif row[0] == "Frey":
+		elif row[0] == "Frey Library":
 			data["gate_id"] = "7"
 		
 		elif row[0] == "Exhibition Room":
