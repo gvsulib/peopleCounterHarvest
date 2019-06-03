@@ -41,7 +41,7 @@ if len(sys.argv) > 1:
 
 	if len(sys.argv) == 4:
 
-		acceptableValues = [5,6,7,14,15]
+		acceptableValues = [5,6,7,14,15,16]
 		if int(sys.argv[3]) in acceptableValues:
 			
 			location = ""
@@ -56,11 +56,13 @@ if len(sys.argv) > 1:
 				location = "Frey Library"
 			elif locIDNum == "15":
 				location = "Exhibition Room"
+			elif locIDNum == "16":
+				location = "Tech Showcase"
 			else:
-				print("Third argument must be an 5,6,7,14, or 15")
+				print("Third argument must be an 5,6,7,14,15, or 16")
 				quit(1)
 		else:
-			print("Third argument must be an 5,6,7, 14 or 15")
+			print("Third argument must be an 5,6,7, 14, 15, or 16")
 			quit(1)
 	
 
@@ -143,6 +145,8 @@ for row in lines:
 		
 		elif row[0] == "Exhibition Room":
 			data["gate_id"] = "15"
+		elif row[0] == "Tech Showcase":
+			data["gate_id"] = "16"
 		else:
 			continue
 	else:
