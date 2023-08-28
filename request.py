@@ -109,9 +109,9 @@ if r.status_code != 200:
 print(r.url)
 
 
-#file = open("raw_data.csv", "w+")
-#file.write(r.text)
-#file.close()
+file = open("raw_data.csv", "w+")
+file.write(r.text)
+file.close()
 lines = r.text.split("\n")
 # get rid of the first line, which is field identifiers
 lines.pop(0)
