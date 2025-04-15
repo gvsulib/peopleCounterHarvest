@@ -8,7 +8,7 @@ Requires a separate authentication file with credentials for the respective APIs
 
 The script is scheduled to run every week (via cron) and by default, gathers and migrates data representing traffic in the past week.
 
-the script can be invoked form the command line with explicit dates nd locations.  This is useful if there's an issue and we need to load a specific time period.  Syntax:
+the script can be invoked from the command line with explicit dates and locations.  This is useful if there's an issue and we need to load a specific time period.  Syntax:
 
 ./request.py YYYY-MM-DD YYYY-MM-DD locationID(optional)
 
