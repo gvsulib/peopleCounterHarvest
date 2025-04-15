@@ -1,12 +1,14 @@
-PeopleCounterScript
-===================
+# People Counter Script
 
-
-Very simple script to harvest data from our peoplecounter gate counters and put it into our libinsight account
+This is a very simple phython script to harvest data from our peoplecounter gate counters (https://axper.com/en/resources/counting-technology/) 
+and move it into our libinsight account (https://www.springshare.com/libinsight) which is what we use to analyze and prepare reports.  
+Both these systems have APIs that can be used to move data back and forth.
 
 Requires a separate authentication file with credentials for the respective APIs.
 
-Can be invoked form the command line:
+The script is scheduled to run every week (via cron) and by default, gathers and migrates data representing traffic in the past week.
+
+the script can be invoked form the command line with explicit dates nd locations.  This is useful if there's an issue and we need to load a specific time period.  Syntax:
 
 ./request.py YYYY-MM-DD YYYY-MM-DD locationID(optional)
 
